@@ -181,24 +181,24 @@ async function connectToWA() {
             await loadRemotePlugins();
             console.log('✅ [Dinu-MD] Hey, Dinu-MD started✅');
             const aliveMessage = `╭─────── ⭓ ⭓ ⭓  ─────────╮
-│     🍁 ＤＡＮＵＷＡ－ 〽️Ｄ 🍁    │
+│     🍁 𝓓𝓲𝓷𝓾 𝓜𝓓 🍁    │
 ╰──────────────⟡───────╯
 
 ╔═══◉ *🟢 STATUS: ONLINE* ◉═══╗
-║  𝙷𝚎𝚢 𝙳𝚞𝚍𝚎, 𝙸’𝚖 𝚑𝚎𝚛𝚎 𝚝𝚘 𝚑𝚎𝚕𝚙 𝚢𝚘𝚞.  
+║  𝙷ello Baba, 𝙸’𝚖 𝚑𝚎𝚛𝚎 𝚝𝚘 𝚑𝚎𝚕𝚙 𝚢𝚘𝚞.  
 ║  𝙰𝚜𝚔 𝚖𝚎 𝚊𝚗𝚢𝚝𝚑𝚒𝚗𝚐! 💬
 ╚══════════════════════╝
 
 🧾 *PROFILE INFORMATION*
 ┌──────── ⋆⋅☆⋅⋆ ────────┐
-│ 🔐 *Owner:* Danuka Disanayaka  
+│ 🔐 *Owner:* Dineth Rusiru  
 │ 👤 *Botname:* Dinu-MD  
 │ ⚡ *Bio:* Powerful WhatsApp Bot  
-│ 🧩 *Role:* Wizard Lord 🧙‍♂️  
+│ 🧩 *Role:* Wizard  🧙‍♂️  
 └──────── ⋆⋅☆⋅⋆ ────────┘
 
-🚀 Powered By *DANUKA*
-*DISANAYAKA* 🔥
+🚀 Powered By *Dineth Geek*
+*Youtube Channel* 🔥
          `;
             sock.sendMessage(ownerNumber[0] + '@s.whatsapp.net', {
                 image: { url: config.ALIVE_IMG },
