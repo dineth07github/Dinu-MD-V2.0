@@ -1,47 +1,40 @@
 //══════════════════════════════════════════════════════════════════════════════════════════════════════//
 //                                                                                                      //
-//                                   ＷＨＡＴＳＡＰＰ　ＢＯＴ－ＤＡＮＵＷＡ　ＭＤ                           //
-//                                                                                                      // 
-//                                             Ｖ：1．0．0                                               // 
+//                                   DINU MD 2.0 BOT                                                    //
 //                                                                                                      //
-//     ██████╗  █████╗ ███╗  ██╗██╗   ██╗██╗    ██╗ █████╗     ███╗   ███╗██████╗                       //
-//     ██╔══██╗██╔══██╗████╗ ██║██║   ██║██║    ██║██╔══██╗    ████╗ ████║██╔══██╗                      //
-//     ██║  ██║███████║██╔██╗██║██║   ██║██║ █╗ ██║███████║    ██╔████╔██║██║  ██║                      //
-//     ██║  ██║██╔══██║██║╚████║██║   ██║██║███╗██║██╔══██║    ██║╚██╔╝██║██║  ██║                      //
-//     ██████╔╝██║  ██║██║ ╚███║╚██████╔╝╚███╔███╔╝██║  ██║    ██║ ╚═╝ ██║██████╔╝                      //
-//     ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚══╝ ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═╝    ╚═╝     ╚═╝╚═════╝                       //
-//                                                                                                      //
-//                            Powerful WhatsApp Bot by Danuka Disanayaka                                //
-//                                                                                                      //
+//                                         Ｖ：2.0                                                       //
+//
+//																											
+//                	██████╗░██╗███╗░░██╗██╗░░░██╗    ███╗░░░███╗██████╗░    	    //
+//                	██╔══██╗██║████╗░██║██║░░░██║    ████╗░████║██╔══██╗            //
+//                	██║░░██║██║██╔██╗██║██║░░░██║    ██╔████╔██║██║░░██║           	//
+//                	██║░░██║██║██║╚████║██║░░░██║    ██║╚██╔╝██║██║░░██║  	        //
+//                	██████╔╝██║██║░╚███║╚██████╔╝    ██║░╚═╝░██║██████╔╝  	        //
+//	                ╚═════╝░╚═╝╚═╝░░╚══╝░╚═════╝░    ╚═╝░░░░░╚═╝╚═════╝░            //
+//
+//
 //══════════════════════════════════════════════════════════════════════════════════════════════════════//
+//*
+//  * @project_name : © Dinu MD 2.0
+//  * @version      : 2.0
+//  * @author       : Dineth Rusiru
+//  * @youtube      : https://www.youtube.com/@Dineth_Rusiru
+//  * @description  : © Dinu MD 2.0, A Multi-functional WhatsApp bot created by Dineth Rusiru
+//*
+//*
+//Base by Dineth Rusiru
+//GitHub: @dineth07github
+//WhatsApp: +94785602293
+//Want more free bot scripts? Subscribe to my YouTube channel: https://www.youtube.com/@Dineth_Rusiru
+//   * Created By GitHub: Dineth_Rusiru
+//   * Credit To Dineth_Rusiru
+//   * © 2025 Dinu MD 2.0
+// ⛥┌┤
+// */
 
-/**
- * @project_name : DANUWA-MD
- * @author       : Danuka Disanayaka
- * @github       : https://github.com/DANUWA-MD
- * @description  : DANUWA-MD is a multifunctional WhatsApp bot built using Baileys.
- * @version      : 1.0.0
- *
- * Licensed under the GNU GPL-3.0 License.
- * 
- * ┌┤Created By Danuka Disanayaka
- * © 2025 DANUWA-MD ✭ ⛥.
- * plugin date : 07/02/2025
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
-**/
 
-// -------------------------------------------------------------------------------------------------- //
-// ------------------------------------ ආරම්භක අවශ්‍යතා (IMPORTS) ----------------------------------- //
-// -------------------------------------------------------------------------------------------------- //
 
-// Baileys සහ අනෙකුත් අවශ්‍ය modules import කරගැනීම
+// Baileys  modules import 
 const {
     default: makeWASocket,
     useMultiFileAuthState,
@@ -81,8 +74,6 @@ const { sms } = require('./lib/msg');
 const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson } = require('./lib/functions');
 const { replyHandlers, commands } = require('./command');
 
-// -------------------------------------------------------------------------------------------------- //
-// ------------------------------------- මූලික සැකසුම් (INITIAL SETUP) ------------------------------- //
 // -------------------------------------------------------------------------------------------------- //
 
 const app = express();
