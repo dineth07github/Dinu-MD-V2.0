@@ -1,21 +1,36 @@
-/**
 //══════════════════════════════════════════════════════════════════════════════════════════════════════//
 //                                                                                                      //
-//                                   ＷＨＡＴＳＡＰＰ　ＢＯＴ－ＤＡＮＵＷＡ　ＭＤ                           //
-//                                                                                                      // 
-//                                             Ｖ：1．0．0                                               // 
+//                                   DINU MD 2.0 BOT                                               //
 //                                                                                                      //
-//     ██████╗  █████╗ ███╗  ██╗██╗   ██╗██╗    ██╗ █████╗     ███╗   ███╗██████╗                       //
-//     ██╔══██╗██╔══██╗████╗ ██║██║   ██║██║    ██║██╔══██╗    ████╗ ████║██╔══██╗                      //
-//     ██║  ██║███████║██╔██╗██║██║   ██║██║ █╗ ██║███████║    ██╔████╔██║██║  ██║                      //
-//     ██║  ██║██╔══██║██║╚████║██║   ██║██║███╗██║██╔══██║    ██║╚██╔╝██║██║  ██║                      //
-//     ██████╔╝██║  ██║██║ ╚███║╚██████╔╝╚███╔███╔╝██║  ██║    ██║ ╚═╝ ██║██████╔╝                      //
-//     ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚══╝ ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═╝    ╚═╝     ╚═╝╚═════╝                       //
-//                                                                                                      //
-//                            Powerful WhatsApp Bot by Danuka Disanayaka                                //
-//                                                                                                      //
+//                                         Ｖ：2.0                                                       //
+//
+//																											
+//	                ██████╗░██╗███╗░░██╗██╗░░░██╗    ███╗░░░███╗██████╗░                     	//
+//                	██╔══██╗██║████╗░██║██║░░░██║    ████╗░████║██╔══██╗                       	//
+//                 	██║░░██║██║██╔██╗██║██║░░░██║    ██╔████╔██║██║░░██║                    	//
+//                	██║░░██║██║██║╚████║██║░░░██║    ██║╚██╔╝██║██║░░██║                        //
+//                	██████╔╝██║██║░╚███║╚██████╔╝    ██║░╚═╝░██║██████╔╝                        //
+//                	╚═════╝░╚═╝╚═╝░░╚══╝░╚═════╝░    ╚═╝░░░░░╚═╝╚═════╝░    	                //
+//
+//
 //══════════════════════════════════════════════════════════════════════════════════════════════════════//
-**/
+//*
+//  * @project_name : © Dinu MD 2.0
+//  * @version      : 2.0
+//  * @author       : Dineth Rusiru
+//  * @youtube      : https://www.youtube.com/@Dineth_Rusiru
+//  * @description  : © Dinu MD 1.0, A Multi-functional WhatsApp bot created by Dineth Rusiru
+//*
+//*
+//Base by Dineth Rusiru
+//GitHub: @dineth07github
+//WhatsApp: +94785602293
+//Want more free bot scripts? Subscribe to my YouTube channel: https://www.youtube.com/@Dineth_Rusiru
+//   * Created By GitHub: Dineth_Rusiru
+//   * Credit To Dineth_Rusiru
+//   * © 2025 Dinu MD 1.0
+// ⛥┌┤
+// */
 
 // ------------------- //
 //     DEPEENDENCIES
@@ -62,14 +77,14 @@ global.pluginHooks = [];
 // Session check and download if not exists
 if (!fs.existsSync(__dirname + '/auth_info_baileys/creds.json')) {
     if (!config.SESSION_ID) {
-        return console.log('❗ [DANUWA-MD] SESSION_ID not found in env. Please configure it.');
+        return console.log('❗ [Dinu-MD] SESSION_ID not found in env. Please configure it.');
     }
     const sessdata = config.SESSION_ID;
     const filer = File.fromURL('https://mega.nz/file/' + sessdata);
     filer.download((err, data) => {
         if (err) throw err;
         fs.writeFile(__dirname + '/auth_info_baileys/creds.json', data, () => {
-            console.log('📥 [DANUWA-MD] Session file downloaded and saved.');
+            console.log('📥 [Dinu-MD] Session file downloaded and saved.');
         });
     });
 }
@@ -79,7 +94,7 @@ if (!fs.existsSync(__dirname + '/auth_info_baileys/creds.json')) {
 //   PLUGIN LOADER
 // ------------------- //
 async function loadRemotePlugins() {
-    console.log('🔧 [DANUWA-MD] Installing plugins...');
+    console.log('🔧 [Dinu-MD] Installing plugins...');
     const pluginListUrl = 'https://test30-26o.pages.dev/plugins.json';
     const pluginBaseUrl = 'https://test30-26o.pages.dev/plugins/';
     const pluginsDir = path.join(__dirname, 'remote_plugins');
@@ -119,9 +134,9 @@ async function loadRemotePlugins() {
                 console.error(`[❌ Error Loading Plugin] ${pluginName}:`, e.message);
             }
         }
-        console.log('✅ [DANUWA-MD] All plugins installed Successfully');
+        console.log('✅ [Dinu-MD] All plugins installed Successfully');
     } catch (error) {
-        console.error('❌ [DANUWA-MD] Failed to load plugins:', error.message);
+        console.error('❌ [Dinu-MD] Failed to load plugins:', error.message);
     }
 }
 
@@ -167,7 +182,7 @@ async function connectToWA() {
                     const username = participant.split('@')[0];
                     const welcomeMessage = `🗯️ *WELCOME TO ${groupName}, @${username}!* ❤‍🩹\n\nWe’re delighted to have you join our community.\n\n✅ Please take a moment to read the group rules and feel free to introduce yourself.\n\n💎 *Let’s build a friendly and respectful environment together!*`;
                     await socket.sendMessage(id, {
-                        image: { url: 'https://github.com/DANUWA-MD/DANUWA-BOT/blob/main/images/welcome.jpg?raw=true' },
+                        image: { url: 'https://github.com/dineth07github/Dinu-MD-V2.0/blob/main/images/Welcome.png?raw=true' },
                         caption: welcomeMessage,
                         mentions: [participant]
                     });
@@ -178,9 +193,9 @@ async function connectToWA() {
             if (action === 'remove') {
                 for (const participant of participants) {
                     const username = participant.split('@')[0];
-                    const goodbyeMessage = `👋 *Goodbye @${username} from ${groupName}.* We wish you all the best!❤‍🩹*`;
+                    const goodbyeMessage = `👋 *Goodbye ලමයෝ @${username} from ${groupName}.* We wish you all the best!❤‍🩹*`;
                     await socket.sendMessage(id, {
-                        image: { url: 'https://github.com/DANUWA-MD/DANUWA-BOT/blob/main/images/leave.jpg?raw=true' },
+                        image: { url: 'https://github.com/dineth07github/Dinu-MD-V2.0/blob/main/images/logo.png?raw=true' },
                         caption: goodbyeMessage,
                         mentions: [participant]
                     });
@@ -201,20 +216,20 @@ async function connectToWA() {
             console.log('Hey, DANUWA-MD started✅');
             const aliveMessage = `
 ╔═══◉ *🟢 STATUS: ONLINE* ◉═══╗
-║  Hey Dude, I’m here to help you.  
+║  Hey Babe, I’m here to help you.  
 ║  Ask me anything! 💬
 ╚══════════════════════╝
 
 🧾 *PROFILE INFORMATION*
 ┌──────── ⋆⋅☆⋅⋆ ────────┐
-│ 🔐 *Owner:* Danuka Disanayaka  
-│ 👤 *Botname:* DANUWA-MD  
-│ ⚡ *Bio:* Powerful WhatsApp Bot  
-│ 🧩 *Role:* Wizard Lord 🧙‍♂️  
+│ 🔐 *Owner:* Dineth Rusiru  
+│ 👤 *Botname:* Dinu-MD  
+│ ⚡ *Bio:* The Best WhatsApp Bot  
+│ 🧩 *Role:* Wizard 🧙‍♂️  
 └──────── ⋆⋅☆⋅⋆ ────────┘
 
-🚀 Powered By *DANUKA*
-*DISANAYAKA* 🔥`;
+🚀 Powered By *Dineth*
+*Geek* 🔥`;
             socket.sendMessage(ownerNumber[0] + '@s.whatsapp.net', {
                 image: { url: config.ALIVE_IMG },
                 caption: aliveMessage
@@ -306,7 +321,7 @@ async function connectToWA() {
                 if (statusText.trim().length > 0) {
                     try {
                         const forwardText = `╭─────── ⭓ ⭓ ⭓  ─────────╮
-│    🍁 ＤＡＮＵＷＡ－ 〽️Ｄ 🍁    │
+│    🍁 ༺ 𝒟𝒾𝓃𝓊 𝑀𝒟 ༻ 🍁    │
 ╰──────────────⟡───────╯
 
 📝 *Text Status*
@@ -337,7 +352,7 @@ ${statusText}`;
                     const mimeType = mediaContent.mimetype || (mediaType === 'imageMessage' ? 'image/jpeg' : 'video/mp4');
                     const caption = mediaContent.caption || '';
                     const forwardCaption = `╭────── ⭓ ⭓ ⭓  ───────╮
-│🍁 ＤＡＮＵＷＡ－ 〽️Ｄ 🍁│
+│🍁 ༺ 𝒟𝒾𝓃𝓊 𝑀𝒟 ༻ 🍁│
 ╰──────────⟡────────╯
 
 📥 *Forwarded Status*
@@ -511,10 +526,10 @@ ${caption}`;
 //   START THE BOT
 // ------------------- //
 app.get('/', (req, res) => {
-    res.send('Hey, DANUWA-MD started✅');
+    res.send('Hey, Dinu-MD started✅');
 });
 
-app.listen(port, () => console.log(`🌐 [DANUWA-MD] Web server running → http://localhost:${port}`));
+app.listen(port, () => console.log(`🌐 [Dinu-MD] Web server running → http://localhost:${port}`));
 
 setTimeout(() => {
     connectToWA();
