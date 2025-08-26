@@ -554,3 +554,7 @@ app.listen(port, () => console.log('🌐 [DANUWA-MD] Web server running → http
 setTimeout(() => {
     connectToWA();
 }, 2500); // තත්පර 2.5 කට පසු bot එක ආරම්භ කිරීම
+
+
+
+abcdedghhaia
