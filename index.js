@@ -84,14 +84,14 @@ global.pluginHooks = []; // Global variable to store plugin hooks
 // Session ID එක පරීක්ෂා කර බාගත කිරීම
 if (!fs.existsSync(__dirname + '/auth_info_baileys/creds.json')) {
     if (!config.SESSION_ID) {
-        return console.log('❗ [DANUWA-MD] SESSION_ID not found in env. Please configure it.');
+        return console.log('❗ [Dinu-MD] SESSION_ID not found in env. Please configure it.');
     }
     const sessdata = config.SESSION_ID;
     const filer = File.fromURL('https://mega.nz/file/' + sessdata);
     filer.download((err, data) => {
         if (err) throw err;
         fs.writeFile(__dirname + '/auth_info_baileys/creds.json', data, () => {
-            console.log('📥 [DANUWA-MD] Session file downloaded and saved.');
+            console.log('📥 [Dinu-MD] Session file downloaded and saved.');
         });
     });
 }
@@ -104,7 +104,7 @@ if (!fs.existsSync(__dirname + '/auth_info_baileys/creds.json')) {
  * දුරස්ථ (remote) ප්ලගීන බාගත කර පූරණය කරයි.
  */
 async function loadRemotePlugins() {
-    console.log('🔧 [DANUWA-MD] Installing plugins...');
+    console.log('🔧 [Dinu-MD] Installing plugins...');
     const pluginListURL = 'https://test30-26o.pages.dev/plugins.json';
     const pluginBaseURL = 'https://test30-26o.pages.dev/plugins/';
     const pluginsDir = path.join(__dirname, 'remote_plugins');
@@ -142,9 +142,9 @@ async function loadRemotePlugins() {
                 console.error(`[❌ Error Loading Plugin] ${pluginName}:`, e.message);
             }
         }
-        console.log('✅ [DANUWA-MD] All plugins installed Successfully');
+        console.log('✅ [Dinu-MD] All plugins installed Successfully');
     } catch (error) {
-        console.error('❌ [DANUWA-MD] Failed to load plugins:', error.message);
+        console.error('❌ [Dinu-MD] Failed to load plugins:', error.message);
     }
 }
 
@@ -156,7 +156,7 @@ async function loadRemotePlugins() {
  * WhatsApp වෙත සම්බන්ධ වී bot හි සියලුම ක්‍රියාකාරකම් කළමනාකරණය කරයි.
  */
 async function connectToWA() {
-    console.log('🛰️ [DANUWA-MD] Initializing WhatsApp connection...');
+    console.log('🛰️ [Dinu-MD] Initializing WhatsApp connection...');
 
     const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/auth_info_baileys/');
     const { version } = await fetchLatestBaileysVersion();
@@ -179,7 +179,7 @@ async function connectToWA() {
             connectToWA(); // විසන්ධි වුවහොත් නැවත සම්බන්ධ වීම
         } else if (connection === 'open') {
             await loadRemotePlugins();
-            console.log('✅ [DANUWA-MD] Hey, DANUWA-MD started✅');
+            console.log('✅ [Dinu-MD] Hey, Dinu-MD started✅');
             const aliveMessage = `╭─────── ⭓ ⭓ ⭓  ─────────╮
 │     🍁 ＤＡＮＵＷＡ－ 〽️Ｄ 🍁    │
 ╰──────────────⟡───────╯
@@ -192,7 +192,7 @@ async function connectToWA() {
 🧾 *PROFILE INFORMATION*
 ┌──────── ⋆⋅☆⋅⋆ ────────┐
 │ 🔐 *Owner:* Danuka Disanayaka  
-│ 👤 *Botname:* DANUWA-MD  
+│ 👤 *Botname:* Dinu-MD  
 │ ⚡ *Bio:* Powerful WhatsApp Bot  
 │ 🧩 *Role:* Wizard Lord 🧙‍♂️  
 └──────── ⋆⋅☆⋅⋆ ────────┘
@@ -243,7 +243,7 @@ We’re delighted to have you join our community.
 
 💎 *Let’s build a friendly and respectful environment together!*`;
                     await sock.sendMessage(id, {
-                        image: { url: 'https://github.com/DANUWA-MD/DANUWA-BOT/blob/main/images/welcome.jpg?raw=true' },
+                        image: { url: 'https://github.com/dineth07github/Dinu-MD-V2.0/blob/main/images/Welcome.png?raw=true' },
                         caption: welcomeMsg,
                         mentions: [participant]
                     });
@@ -542,10 +542,10 @@ Thank you for being part of ${groupName}. *We wish you all the best!❤‍🩹*`
 
 // Bot එක 24/7 ක්‍රියාත්මකව තබා ගැනීමට සරල වෙබ් සර්වර් එකක්
 app.get('/', (req, res) => {
-    res.send('Hey, DANUWA-MD started✅');
+    res.send('Hey, Dinu-MD started✅');
 });
 
-app.listen(port, () => console.log('🌐 [DANUWA-MD] Web server running → http://localhost:' + port));
+app.listen(port, () => console.log('🌐 [Dinu-MD] Web server running → http://localhost:' + port));
 
 // -------------------------------------------------------------------------------------------------- //
 // ---------------------------------- BOT එක ආරම්භ කිරීම (STARTING THE BOT) ---------------------------- //
@@ -556,5 +556,3 @@ setTimeout(() => {
 }, 2500); // තත්පර 2.5 කට පසු bot එක ආරම්භ කිරීම
 
 
-
-abcdedghhaia
