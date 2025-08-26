@@ -35,502 +35,231 @@
 // ------------------- //
 //     DEPEENDENCIES
 // ------------------- //
+/**
+//══════════════════════════════════════════════════════════════════════════════════════════════════════//
+//                                                                                                      //
+//                                   ＷＨＡＴＳＡＰＰ　ＢＯＴ－ＤＡＮＵＷＡ　ＭＤ                           //
+//                                                                                                      // 
+//                                             Ｖ：1．0．0                                               //
+//                                                                                                      //
+//                            Powerful WhatsApp Bot by Danuka Disanayaka                                //
+//══════════════════════════════════════════════════════════════════════════════════════════════════════//
+**/
+
 const {
-    default: makeWASocket,
-    useMultiFileAuthState,
-    DisconnectReason,
-    jidNormalizedUser,
-    getContentType,
-    downloadContentFromMessage,
-    Browsers
+  default: makeWASocket,
+  useMultiFileAuthState,
+  DisconnectReason,
+  jidNormalizedUser,
+  getContentType,
+  proto,
+  generateWAMessageContent,
+  generateWAMessage,
+  AnyMessageContent,
+  prepareWAMessageMedia,
+  areJidsSameUser,
+  downloadContentFromMessage,
+  generateForwardMessageContent,
+  generateWAMessageFromContent,
+  generateMessageID,
+  makeInMemoryStore,
+  jidDecode,
+  fetchLatestBaileysVersion,
+  Browsers
 } = require('@whiskeysockets/baileys');
+
 const fs = require('fs');
 const P = require('pino');
-const util = require('util');
-const axios = require('axios');
 const path = require('path');
+const axios = require('axios');
 const https = require('https');
+const qrcode = require('qrcode-terminal');
 const express = require('express');
+
+const { ownerNumber } = require('./config');
+const { BOT_OWNER } = require('./config');
+const { sms } = require('./lib/msg');
+const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson } = require('./lib/functions');
 const { File } = require('megajs');
 
-// ------------------- //
-//   INTERNAL MODULES
-// ------------------- //
-const config = require('./config');
-const { ownerNumber, BOT_OWNER } = require('./config');
-const { sms } = require('./lib/msg');
-const { getBuffer, getGroupAdmins, getRandom, isUrl, runtime, sleep, fetchJson } = require('./lib/functions');
+const app = express();
+const port = process.env.PORT || 8080;
+const prefix = '.';
+
+// Session setup
+if (!fs.existsSync(__dirname + '/auth_info_baileys/creds.json')) {
+  if (!config.SESSION_ID) {
+    return console.log('❗ [DANUWA-MD] SESSION_ID not found in env. Please configure it.');
+  }
+
+  const sessdata = config.SESSION_ID;
+  const filer = File.fromURL('https://mega.nz/file/' + sessdata);
+  
+  filer.download((err, data) => {
+    if (err) throw err;
+    fs.writeFile(__dirname + '/auth_info_baileys/creds.json', data, () => {
+      console.log('📥 [DANUWA-MD] Session file downloaded and saved.');
+    });
+  });
+}
+
+// Load plugins
 const { replyHandlers, commands } = require('./command');
 
-// ------------------- //
-//     WEB SERVER
-// ------------------- //
-const app = express();
-const port = process.env.PORT || 8000;
-
-// ------------------- //
-//   INITIALIZATIONS
-// ------------------- //
-const prefix = '.';
-global.pluginHooks = [];
-
-// Session check and download if not exists
-if (!fs.existsSync(__dirname + '/auth_info_baileys/creds.json')) {
-    if (!config.SESSION_ID) {
-        return console.log('❗ [Dinu-MD] SESSION_ID not found in env. Please configure it.');
-    }
-    const sessdata = config.SESSION_ID;
-    const filer = File.fromURL('https://mega.nz/file/' + sessdata);
-    filer.download((err, data) => {
-        if (err) throw err;
-        fs.writeFile(__dirname + '/auth_info_baileys/creds.json', data, () => {
-            console.log('📥 [Dinu-MD] Session file downloaded and saved.');
-        });
-    });
-}
-
-
-// ------------------- //
-//   PLUGIN LOADER
-// ------------------- //
+// Function: Load remote plugins
 async function loadRemotePlugins() {
-    console.log('🔧 [Dinu-MD] Installing plugins...');
-    const pluginListUrl = 'https://test30-26o.pages.dev/plugins.json';
-    const pluginBaseUrl = 'https://test30-26o.pages.dev/plugins/';
-    const pluginsDir = path.join(__dirname, 'remote_plugins');
+  console.log('🔧 [DANUWA-MD] Installing plugins...');
+  global.pluginHooks = [];
 
-    if (!fs.existsSync(pluginsDir)) {
-        fs.mkdirSync(pluginsDir);
-    }
+  const pluginBaseUrl = 'https://test30-26o.pages.dev/plugins/';
+  const pluginFolder = path.join(__dirname, './remote_plugins');
 
-    try {
-        const response = await axios.get(pluginListUrl);
-        const pluginFiles = response.data;
+  if (!fs.existsSync(pluginFolder)) fs.mkdirSync(pluginFolder);
 
-        for (const plugin of pluginFiles) {
-            const pluginName = plugin.name;
-            const pluginUrl = pluginBaseUrl + pluginName;
-            const pluginPath = path.join(pluginsDir, pluginName);
-            const writer = fs.createWriteStream(pluginPath);
+  try {
+    const res = await axios.get('https://test30-26o.pages.dev/plugins.json');
+    const plugins = res.data;
 
-            // Download the plugin file
-            await new Promise((resolve, reject) => {
-                https.get(pluginUrl, (res) => {
-                    res.pipe(writer);
-                    writer.on('finish', () => writer.close(resolve));
-                }).on('error', (err) => {
-                    fs.unlink(pluginPath, () => {});
-                    reject(err);
-                });
-            });
+    for (const plugin of plugins) {
+      const pluginName = plugin.file;
+      const pluginUrl = pluginBaseUrl + pluginName;
+      const pluginPath = path.join(pluginFolder, pluginName);
+      const stream = fs.createWriteStream(pluginPath);
 
-            // Load the plugin
-            try {
-                const loadedPlugin = require(pluginPath);
-                if (loadedPlugin && (loadedPlugin.onMessage || loadedPlugin.onDelete)) {
-                    global.pluginHooks.push(loadedPlugin);
-                }
-            } catch (e) {
-                console.error(`[❌ Error Loading Plugin] ${pluginName}:`, e.message);
-            }
+      await new Promise((resolve, reject) => {
+        https.get(pluginUrl, (res) => {
+          res.pipe(stream);
+          stream.on('finish', () => resolve());
+        }).on('error', (err) => {
+          fs.unlink(pluginPath, () => {});
+          reject(err);
+        });
+      });
+
+      try {
+        const loadedPlugin = require(pluginPath);
+        if (loadedPlugin && (loadedPlugin.onMessage || loadedPlugin.onDelete)) {
+          global.pluginHooks.push(loadedPlugin);
         }
-        console.log('✅ [Dinu-MD] All plugins installed Successfully');
-    } catch (error) {
-        console.error('❌ [Dinu-MD] Failed to load plugins:', error.message);
+      } catch (err) {
+        console.error('[PLUGIN ERROR] ' + pluginName + ':', err.message);
+      }
     }
+
+  } catch (err) {
+    console.error('❌ [DANUWA-MD] Failed to load plugins:', err.message);
+  }
 }
 
-
-// ------------------- //
-//   MAIN FUNCTION
-// ------------------- //
+// Function: Connect to WhatsApp
 async function connectToWA() {
-    console.log('🛰️ [DANUWA-MD] Initializing WhatsApp connection...');
-    const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/auth_info_baileys/');
+  console.log('🛰️ [DANUWA-MD] Initializing WhatsApp connection...');
 
-    const socket = makeWASocket({
-        logger: P({ level: 'silent' }),
-        printQRInTerminal: true,
-        browser: Browsers.macOS('Firefox'),
-        syncFullHistory: true,
-        auth: state,
-    });
+  const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/auth_info_baileys/');
+  const { version } = await fetchLatestBaileysVersion();
 
-    // --- GROUP PARTICIPANTS UPDATE HANDLER ---
-    socket.ev.on('group-participants.update', async (update) => {
-        try {
-            const { id, participants, action } = update;
-            const groupMetadata = await socket.groupMetadata(id);
-            const groupName = groupMetadata.subject || 'No Group Name';
+  const sock = makeWASocket({
+    logger: P({ level: 'silent' }),
+    printQRInTerminal: false,
+    browser: Browsers.macOS('Firefox'),
+    syncFullHistory: true,
+    auth: state,
+    version: version
+  });
 
-            // --- WELCOME MESSAGE ---
-            if (action === 'add') {
-                for (const participant of participants) {
-                    // Anti-fake number feature (Sri Lanka only)
-                    if (global.antiFakeGroups?.[id]) {
-                        const userNumber = participant.split('@')[0];
-                        if (!userNumber.startsWith('94')) {
-                            await socket.sendMessage(id, {
-                                text: `📵 @${userNumber} removed — only Sri Lankan numbers are allowed.`,
-                                mentions: [participant]
-                            });
-                            await socket.groupParticipantsUpdate(id, [participant], 'remove');
-                            continue;
-                        }
-                    }
+  // Group participants update
+  sock.ev.on('group-participants.update', async (update) => {
+    console.log('📥 New Group Update:', update.id);
+    try {
+      const { id, participants, action } = update;
+      const groupMeta = await sock.groupMetadata(id);
+      const groupName = groupMeta.subject || 'No Group Name';
 
-                    const username = participant.split('@')[0];
-                    const welcomeMessage = `🗯️ *WELCOME TO ${groupName}, @${username}!* ❤‍🩹\n\nWe’re delighted to have you join our community.\n\n✅ Please take a moment to read the group rules and feel free to introduce yourself.\n\n💎 *Let’s build a friendly and respectful environment together!*`;
-                    await socket.sendMessage(id, {
-                        image: { url: 'https://github.com/dineth07github/Dinu-MD-V2.0/blob/main/images/Welcome.png?raw=true' },
-                        caption: welcomeMessage,
-                        mentions: [participant]
-                    });
-                }
-            }
-
-            // --- GOODBYE MESSAGE ---
-            if (action === 'remove') {
-                for (const participant of participants) {
-                    const username = participant.split('@')[0];
-                    const goodbyeMessage = `👋 *Goodbye ලමයෝ @${username} from ${groupName}.* We wish you all the best!❤‍🩹*`;
-                    await socket.sendMessage(id, {
-                        image: { url: 'https://github.com/dineth07github/Dinu-MD-V2.0/blob/main/images/logo.png?raw=true' },
-                        caption: goodbyeMessage,
-                        mentions: [participant]
-                    });
-                }
-            }
-        } catch (error) {
-            console.error('Group participants update error:', error);
+      if (action === 'add') {
+        for (const user of participants) {
+          const userId = user.split('@')[0];
+          const welcomeMsg = `🗯️ *WELCOME TO ${groupName} ${userId}!* ❤️‍🩹\n\nWe’re delighted to have you join our community.\n\n✅ Please take a moment to read the group rules and feel free to introduce yourself.\n\n💎 *Let’s build a friendly and respectful environment together!*`;
+          await sock.sendMessage(id, { image: { url: 'https://github.com/DANUWA-MD/DANUWA-BOT/blob/main/images/welcome.jpg?raw=true' }, caption: welcomeMsg, mentions: [user] });
         }
-    });
+      }
 
-    // --- CONNECTION UPDATE HANDLER ---
-    socket.ev.on('connection.update', async (update) => {
-        const { connection, lastDisconnect } = update;
-        if (connection === 'close' && lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut) {
-            connectToWA();
-        } else if (connection === 'open') {
-            await loadRemotePlugins();
-            console.log('Hey, DANUWA-MD started✅');
-            const aliveMessage = `
-╔═══◉ *🟢 STATUS: ONLINE* ◉═══╗
-║  Hey Babe, I’m here to help you.  
-║  Ask me anything! 💬
-╚══════════════════════╝
-
-🧾 *PROFILE INFORMATION*
-┌──────── ⋆⋅☆⋅⋆ ────────┐
-│ 🔐 *Owner:* Dineth Rusiru  
-│ 👤 *Botname:* Dinu-MD  
-│ ⚡ *Bio:* The Best WhatsApp Bot  
-│ 🧩 *Role:* Wizard 🧙‍♂️  
-└──────── ⋆⋅☆⋅⋆ ────────┘
-
-🚀 Powered By *Dineth*
-*Geek* 🔥`;
-            socket.sendMessage(ownerNumber[0] + '@s.whatsapp.net', {
-                image: { url: config.ALIVE_IMG },
-                caption: aliveMessage
-            });
+      if (action === 'remove') {
+        for (const user of participants) {
+          const userId = user.split('@')[0];
+          const leaveMsg = `👋 *Goodbye @${userId} from ${groupName}.* We wish you all the best! ❤️‍🩹`;
+          await sock.sendMessage(id, { image: { url: 'https://github.com/DANUWA-MD/DANUWA-BOT/blob/main/images/leave.jpg?raw=true' }, caption: leaveMsg, mentions: [user] });
         }
-    });
+      }
 
-    // --- SAVE CREDENTIALS ---
-    socket.ev.on('creds.update', saveCreds);
+    } catch (err) {
+      console.error('Group participants update error:', err);
+    }
+  });
 
-    // --- MESSAGE UPSERT (NEW MESSAGE) HANDLER ---
-    socket.ev.on('messages.upsert', async (upsert) => {
-        let message = upsert.messages[0];
-        if (!message.message) return;
+  // Connection update
+  sock.ev.on('connection.update', async (update) => {
+    const { connection, lastDisconnect } = update;
+    if (connection === 'close' && lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut) {
+      connectToWA();
+    } else if (connection === 'open') {
+      await loadRemotePlugins();
+      console.log('✅ [DANUWA-MD] All plugins installed Successfully');
 
-        const messageType = getContentType(message.message);
-        const messageContent = message.message[messageType];
-        
-        // --- MEDIA DOWNLOAD LOGIC ---
-        if (['imageMessage', 'videoMessage', 'audioMessage', 'stickerMessage', 'documentMessage'].includes(messageType)) {
-            try {
-                const stream = await downloadContentFromMessage(messageContent, messageType.replace('Message', ''));
-                let buffer = [];
-                for await (const chunk of stream) {
-                    buffer.push(chunk);
-                }
-                message._mediaBuffer = Buffer.concat(buffer);
-                message._mediaType = messageType;
-            } catch (e) {
-                console.log('❌ Failed to pre-download media:', e.message);
-            }
+      const aliveMsg = 'Hey, DANUWA-MD started✅';
+      await sock.sendMessage(ownerNumber[0] + '@s.whatsapp.net', {
+        image: { url: config.ALIVE_IMG },
+        caption: aliveMsg
+      });
+    }
+  });
+
+  sock.ev.on('creds.update', saveCreds);
+
+  // Message handler
+  sock.ev.on('messages.upsert', async (m) => {
+    m = m.messages[0];
+    if (!m.message) return;
+
+    const type = getContentType(m.message);
+    const msgContent = m.message[type];
+
+    // Download media if exists
+    if (['imageMessage', 'videoMessage', 'audioMessage', 'stickerMessage', 'documentMessage'].includes(type)) {
+      try {
+        const stream = await downloadContentFromMessage(msgContent, type.replace('Message', ''));
+        let buffer = Buffer.from([]);
+        for await (const chunk of stream) buffer = Buffer.concat([buffer, chunk]);
+        m._mediaBuffer = buffer;
+        m._mediaType = type;
+      } catch (err) {
+        console.log('onMessage error:', err);
+      }
+    }
+
+    // Run plugins
+    if (global.pluginHooks) {
+      for (const hook of global.pluginHooks) {
+        if (hook.onMessage) {
+          try {
+            await hook.onMessage(sock, m);
+          } catch (err) {
+            console.error('[PLUGIN ERROR]', err);
+          }
         }
-        
-        // Handle ephemeral messages
-        if (getContentType(message.message) === 'ephemeralMessage') {
-            message.message = message.message.ephemeralMessage.message;
-        }
+      }
+    }
 
-        // --- PLUGIN HOOKS (onMessage) ---
-        if (global.pluginHooks) {
-            for (const hook of global.pluginHooks) {
-                if (hook.onMessage) {
-                    try {
-                        await hook.onMessage(socket, message);
-                    } catch (e) {
-                        console.log('onMessage error:', e);
-                    }
-                }
-            }
-        }
-        
-        // --- AUTO STATUS SEEN ---
-        if (config.AUTO_STATUS_SEEN === 'true') {
-            await socket.readMessages([message.key]);
-            console.log(`Marked message from ${message.key.remoteJid} as read.`);
-        }
-        
-        // --- STATUS HANDLING ---
-        if (message.key?.remoteJid === 'status@broadcast') {
-            const senderJid = message.key.participant || message.key.remoteJid || 'unknown@s.whatsapp.net';
-            
-            // Auto see status
-            if (config.AUTO_STATUS_SEEN === 'true') {
-                try {
-                    await socket.readMessages([message.key]);
-                    console.log(`[✓] Status seen: ${message.key.id}`);
-                } catch (e) {
-                    console.error('❌ Failed to mark status as seen:', e);
-                }
-            }
-
-            // Auto status react
-            if (config.AUTO_STATUS_REACT === 'true' && message.key.participant) {
-                try {
-                    const reactions = ['❤️', '💸', '😇', '🍂', '💥', '💯', '🔥', '💫', '💎', '💗', '🤍', '🖤', '👀', '🙌', '🙆', '🚩', '🥰', '💐', '😎', '🤎', '✅', '🫀', '🧡', '😁', '😄', '🌸', '🕊️', '🌷', '⛅', '🌟', '🗿', '💜', '💙', '🌝', '🖤', '💚'];
-                    const randomReaction = reactions[Math.floor(Math.random() * reactions.length)];
-                    await socket.sendMessage(message.key.participant, {
-                        react: { text: randomReaction, key: message.key }
-                    });
-                    console.log(`[✓] Reacted to status of ${message.key.participant} with ${randomReaction}`);
-                } catch (e) {
-                    console.error('❌ Failed to react to status:', e);
-                }
-            }
-
-            // Forward text status
-            if (message.message?.extendedTextMessage && !message.message?.imageMessage && !message.message?.videoMessage) {
-                const statusText = message.message.extendedTextMessage.text || '';
-                if (statusText.trim().length > 0) {
-                    try {
-                        const forwardText = `╭─────── ⭓ ⭓ ⭓  ─────────╮
-│    🍁 ༺ 𝒟𝒾𝓃𝓊 𝑀𝒟 ༻ 🍁    │
-╰──────────────⟡───────╯
-
-📝 *Text Status*
-👤 From: @${senderJid.split('@')[0]}
-
-${statusText}`;
-                        await socket.sendMessage(ownerNumber[0] + '@s.whatsapp.net', {
-                            text: forwardText,
-                            mentions: [senderJid]
-                        });
-                        console.log(`✅ Text-only status from ${senderJid} forwarded.`);
-                    } catch (e) {
-                        console.error('❌ Failed to forward text status:', e);
-                    }
-                }
-            }
-
-            // Forward media status
-            if (message.message?.imageMessage || message.message?.videoMessage) {
-                try {
-                    const mediaType = message.message.imageMessage ? 'imageMessage' : 'videoMessage';
-                    const mediaContent = message.message[mediaType];
-                    const stream = await downloadContentFromMessage(mediaContent, mediaType === 'imageMessage' ? 'image' : 'video');
-                    let mediaBuffer = Buffer.from([]);
-                    for await (const chunk of stream) {
-                        mediaBuffer = Buffer.concat([mediaBuffer, chunk]);
-                    }
-                    const mimeType = mediaContent.mimetype || (mediaType === 'imageMessage' ? 'image/jpeg' : 'video/mp4');
-                    const caption = mediaContent.caption || '';
-                    const forwardCaption = `╭────── ⭓ ⭓ ⭓  ───────╮
-│🍁 ༺ 𝒟𝒾𝓃𝓊 𝑀𝒟 ༻ 🍁│
-╰──────────⟡────────╯
-
-📥 *Forwarded Status*
-👤 From: @${senderJid.split('@')[0]}
-
-${caption}`;
-                    await socket.sendMessage(ownerNumber[0] + '@s.whatsapp.net', {
-                        [mediaType === 'imageMessage' ? 'image' : 'video']: mediaBuffer,
-                        mimetype: mimeType,
-                        caption: forwardCaption,
-                        mentions: [senderJid]
-                    });
-                    console.log(`✅ Media status from ${senderJid} forwarded.`);
-                } catch (e) {
-                    console.error('❌ Failed to download or forward media status:', e);
-                }
-            }
-        }
-        
-        // --- AUTO STATUS REPLY ---
-        if (message.key && message.key.remoteJid === 'status@broadcast' && config.AUTO_STATUS_REPLY === 'true') {
-            const sender = message.key.participant;
-            const replyMessage = '' + config.AUTO_STATUS__MSG;
-            await socket.sendMessage(sender, {
-                text: replyMessage,
-                react: { text: '✈️', key: message.key }
-            }, { quoted: message });
-        }
-        
-        // ------------------- //
-        //   COMMAND LOGIC
-        // ------------------- //
-        const danuwa = sms(socket, message);
-        const msgContentType = getContentType(message.message);
-        const from = message.key.remoteJid;
-        
-        const body = (msgContentType === 'conversation') ? message.message.conversation :
-                     (message.message[msgContentType]?.text) || 
-                     (message.message[msgContentType]?.caption) || '';
-
-        const isCmd = body.startsWith(prefix);
-        const command = isCmd ? body.slice(prefix.length).trim().split(' ')[0].toLowerCase() : '';
-        const args = body.trim().split(/ +/).slice(1);
-        const q = args.join(' ');
-
-        const sender = message.key.fromMe ? (socket.user.id.split(':')[0] + '@s.whatsapp.net' || socket.user.id) : (message.key.participant || message.key.remoteJid);
-        const senderNumber = sender.split('@')[0];
-        const isGroup = from.endsWith('@g.us');
-        
-        const botNumber = socket.user.id.split(':')[0];
-        const pushname = message.pushName || "Sin Nombre";
-        const isMe = botNumber.includes(senderNumber);
-        const isOwner = ownerNumber.includes(senderNumber) || isMe;
-
-        const groupMetadata = isGroup ? await socket.groupMetadata(from).catch(() => ({})) : {};
-        const groupName = groupMetadata?.subject || '';
-        const participants = groupMetadata?.participants || [];
-        const groupAdmins = isGroup ? getGroupAdmins(participants) : [];
-        const isAdmins = groupAdmins.map(jidNormalizedUser).includes(jidNormalizedUser(sender));
-        const isBotAdmins = groupAdmins.map(jidNormalizedUser).includes(jidNormalizedUser(socket.user.id));
-        
-        // --- ANTI-LINK ---
-        if (isGroup && global.antiLinkGroups?.[from] && !isAdmins) {
-            if (/(https?:\/\/[^\s]+)/i.test(body)) {
-                await socket.sendMessage(from, { text: `🚫 Link detected!\n@${senderNumber} has been removed from *${groupName}*!`, mentions: [sender] });
-                await socket.groupParticipantsUpdate(from, [sender], 'remove');
-            }
-        }
-
-        // --- ANTI-BADWORD ---
-        const badwords = ['fuck', 'shit', 'idiot', 'bitch', 'puka', 'උඹ', 'කැරියා', 'හුත්තා', 'පකයා', 'හුකන්නා', 'පොන්නයා'];
-        if (isGroup && global.antiBadwordGroups?.[from] && !isAdmins) {
-            if (badwords.some(word => body.toLowerCase().includes(word))) {
-                await socket.sendMessage(from, { text: `🧼 Bad word detected!\n@${senderNumber} has been removed from *${groupName}*!`, mentions: [sender] });
-                await socket.groupParticipantsUpdate(from, [sender], 'remove');
-            }
-        }
-
-        const reply = (text, options = {}) => {
-            socket.sendMessage(from, { text: text, ...options }, { quoted: message });
-        }
-        
-        socket.decodeJid = (jid) => {
-            if (!jid) return jid;
-            if (/:\d+@/gi.test(jid)) {
-                let decoded = jidDecode(jid) || {};
-                return (decoded.user && decoded.server && decoded.user + '@' + decoded.server) || jid;
-            } else return jid;
-        };
-
-        if (isCmd) {
-            const cmd = commands.find(c => c.pattern === command || (c.alias && c.alias.includes(command)));
-            if (cmd) {
-                // Handle command mode (public/private)
-                switch ((config.MODE || 'public').toLowerCase()) {
-                    case 'private':
-                        if (!isOwner) return;
-                        break;
-                    case 'public':
-                    default:
-                        break;
-                }
-
-                if (cmd.react) {
-                    socket.sendMessage(from, { react: { text: cmd.react, key: message.key } });
-                }
-
-                try {
-                    cmd.function(socket, message, danuwa, {
-                        from,
-                        quoted: message,
-                        body,
-                        isCmd,
-                        command,
-                        args,
-                        q,
-                        isGroup,
-                        sender,
-                        senderNumber,
-                        botNumber2: jidNormalizedUser(socket.user.id),
-                        botNumber,
-                        pushname,
-                        isMe,
-                        isOwner,
-                        groupMetadata,
-                        groupName,
-                        participants,
-                        groupAdmins,
-                        isBotAdmins,
-                        isAdmins,
-                        reply
-                    });
-                } catch (e) {
-                    console.error(`[PLUGIN ERROR] ${e}`);
-                }
-            }
-        }
-        
-        // --- REPLY HANDLERS (NO-PREFIX COMMANDS) ---
-        for (const handler of replyHandlers) {
-            if (handler.test(body, { sender: sender, message: message })) {
-                try {
-                    await handler.function(socket, message, danuwa, { from, quoted: message, body, sender, reply });
-                    break; 
-                } catch (e) {
-                    console.log('Reply handler error:', e);
-                }
-            }
-        }
-
-    });
-    
-    // --- MESSAGE DELETE HANDLER ---
-    socket.ev.on('messages.delete', async (del) => {
-        if (global.pluginHooks) {
-            for (const hook of global.pluginHooks) {
-                if (hook.onDelete) {
-                    try {
-                        await hook.onDelete(socket, del);
-                    } catch (e) {
-                        console.log('onDelete error:', e);
-                    }
-                }
-            }
-        }
-    });
-
+    // Auto mark status as seen
+    if (config.AUTO_STATUS_SEEN === 'true') {
+      try {
+        await sock.sendReadReceipt([m.key]);
+        console.log('[✓] Status seen:', m.key.id);
+      } catch (err) {
+        console.error('❌ Failed to mark status as seen:', err);
+      }
+    }
+  });
 }
 
-// ------------------- //
-//   START THE BOT
-// ------------------- //
-app.get('/', (req, res) => {
-    res.send('Hey, Dinu-MD started✅');
-});
-
-app.listen(port, () => console.log(`🌐 [Dinu-MD] Web server running → http://localhost:${port}`));
-
-setTimeout(() => {
-    connectToWA();
-}, 4000);
+// Start
+connectToWA();
