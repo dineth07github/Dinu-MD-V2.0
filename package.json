@@ -1,12 +1,12 @@
 {
-  "name": "DANUWA-MD",
-  "version": "1.0.0",
-  "description": "A Powerfull Whatsapp Bot",
+  "name": "Dinu-MD",
+  "version": "2.0.0",
+  "description": "The Best Whatsapp Bot",
   "main": "index.js",
   "scripts": {
-    "start": "pm2 start index.js --deep-monitoring --attach --name DANUWA-MD",
-    "stop": "pm2 stop DANUWA-MD",
-    "restart": "pm2 restart DANUWA-MD"
+    "start": "pm2 start index.js --deep-monitoring --attach --name Dinu-MD",
+    "stop": "pm2 stop Dinu-MD",
+    "restart": "pm2 restart Dinu-MD"
   },
     "engines": {
     "node": ">=20.0.0"
