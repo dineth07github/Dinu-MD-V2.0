@@ -13,8 +13,8 @@ function convertToBool(text, fault = 'true') {
 
 const defaultConfig = {
   SESSION_ID: "y5YD3SqA#mwYya0_qL_2Sc-HuBoEG4G9vr6KFFwAnh0dpWoiEfPA", // Put your session id here
-  ALIVE_IMG: "https://github.com/dineth07github/Dinu-MD-V2.0/blob/main/images/Bye.gif?raw=true",
-  ALIVE_MSG: "*Hello👋 Dinu-MD Is Alive Now😍*", // Change alive msg from here
+  ALIVE_IMG: "https://github.com/dineth07github/Dinu-MD-V2.0/blob/main/images/BotAnime.gif?raw=true",
+  ALIVE_MSG: "*Hello Baba..👋 Dinu-MD Is Alive Now😍*", // Change alive msg from here
   OPENAI_API_KEY: "",// Add OPENAI API key here
   GEMINI_API_KEY: "", // Add Gemini API key here
   REMOVE_BG_API_KEY:"", // Add removebg API key here
