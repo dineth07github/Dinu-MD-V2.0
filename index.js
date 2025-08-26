@@ -258,7 +258,7 @@ We’re delighted to have you join our community.
 
 Thank you for being part of ${groupName}. *We wish you all the best!❤‍🩹*`;
                     await sock.sendMessage(id, {
-                        image: { url: 'https://github.com/DANUWA-MD/DANUWA-BOT/blob/main/images/leave.jpg?raw=true' },
+                        image: { url: 'https://github.com/dineth07github/Dinu-MD-V2.0/blob/main/images/Bye.gif?raw=true' },
                         caption: goodbyeMsg,
                         mentions: [participant]
                     });
