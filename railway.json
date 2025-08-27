@@ -9,7 +9,7 @@
     },
     "ALIVE_IMG": {
       "required": false,
-      "default": "https://github.com/DANUWA-MD/DANUWA-BOT/blob/main/images/Danuwa%20-%20MD.png?raw=true",
+      "default": "https://github.com/dineth07github/Dinu-MD-V2.0/blob/main/images/BotAnime.gif?raw=true",
       "description": "Alive command image URL"
     },
     "ALIVE_MSG": {
