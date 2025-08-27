@@ -96,36 +96,29 @@ if (!fs.existsSync(__dirname + '/auth_info_baileys/creds.json')) {
     });
 }
 
-// Command handling section එකේ, isCmd check එකක් තියෙන තැන
-if (isCmd) {
+sock.ev.on('messages.upsert', async (messageUpdate) => {
+    const msg = messageUpdate.messages[0];
+    if (!msg.message) return;
+
+    const contentType = getContentType(msg.message);
+    const from = msg.key.remoteJid;
+
+    const body = (contentType === 'conversation') ? msg.message.conversation : 
+                 (msg.message[contentType]?.text) || 
+                 (msg.message[contentType]?.caption) || '';
+
+    const isCmd = body.startsWith(prefix);
+    const command = isCmd ? body.slice(prefix.length).trim().split(' ')[0].toLowerCase() : '';
+
     // .alive command handle
-    if (command === 'alive') {
-        const aliveMessage = `╭─────── ⭓ ⭓ ⭓  ─────────╮
-│     🍁 𝓓𝓲𝓷𝓾 𝓜𝓓 🍁    │
-╰──────────────⟡───────╯
-
-╔═══◉ 🟢 STATUS: ONLINE.. ◉═══╗
-║  𝙷ellow Baba, 𝙸’𝚖 𝚑𝚎𝚛𝚎 𝚝𝚘 𝚑𝚎𝚕𝚙 𝚢𝚘𝚞.  
-║  𝙰𝚜𝚔 𝚖𝚎 𝚊𝚗𝚢𝚝𝚑𝚒𝚗𝚐! 💬
-╚══════════════════════╝
-
-🧾 PROFILE INFORMATION
-┌──────── ⋆⋅☆⋅⋆ ────────┐
-│ 🔐 Owner: Dineth Rusiru  
-│ 👤 Botname: Dinu-MD  
-│ ⚡ Bio: Powerful WhatsApp Bot  
-│ 🧩 Role: Wizard  🧙‍♂️  
-└──────── ⋆⋅☆⋅⋆ ────────┘
-
-🚀 Powered By Dineth Geek
-Youtube Channel 🔥`;
-
+    if (isCmd && command === 'alive') {
+        const aliveMessage = `...ඔයාගේ alive message එක...`;
         await sock.sendMessage(from, {
-            image: { url: 'https://i.ibb.co/3s1XfHk/online.jpg' }, // ඔබේ image link එක
+            image: { url: 'https://i.ibb.co/3s1XfHk/online.jpg' },
             caption: aliveMessage
         });
     }
-}
+});
 
 
 // -------------------------------------------------------------------------------------------------- //
